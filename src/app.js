@@ -3,19 +3,33 @@ const express = require("express");
 const app = express();
 
 
-const {adminAuth} = require("./middlewares/auth");
-const {userAuth} = require("./middlewares/auth");
 
-app.use("/admin",adminAuth);
+app.get("/getuserdata", (req,res) =>{
+    
+    try{
 
+        throw new Error("kcgmgfgc");
+        res.send("data is sent");
+    }
+    catch(err)
+    {
+        res.status(500).send("Something went Wrong");
+    }
 
-app.get("/user",userAuth, (req,res) =>{
+    
     res.send("data i sent");
 })
 
-app.get("/admin/getalldata",(req,res) =>{
-    res.send("user data sent");
-});
+
+//Error Handling
+app.use("/", (err,req,res,next) =>{
+    if(err)
+    {
+        res.status(500).send("Something went Wrong");
+    }
+
+})
+
 
 
 app.listen(3000, () =>{

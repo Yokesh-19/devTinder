@@ -1,3 +1,8 @@
+MiddleWares:-
+
+
+
+Authentication
 const adminAuth = (req,res,next) =>{
     console.log("Admin auth is getting checked.");
     const token="xyz";
@@ -42,3 +47,27 @@ app.get("/admin/getalldata",(req,res) =>{
 app.listen(3000, () =>{
   console.log("Server is listening on port 3000...");
 });
+
+
+
+
+
+
+//Error handling
+
+app.get("/getuserdata", (req,res) =>{
+    
+
+    throw new Error("kcgmgfgc");
+    res.send("data i sent");
+})
+
+
+//Error Handling
+app.use("/", (err,req,res,next) =>{
+    if(err)
+    {
+        res.status(500).send("Something went Wrong");
+    }
+
+})
