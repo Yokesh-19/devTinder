@@ -3,22 +3,21 @@ const express = require("express");
 const app = express();
 
 
+const {adminAuth} = require("./middlewares/auth");
+const {userAuth} = require("./middlewares/auth");
+
+app.use("/admin",adminAuth);
 
 
-app.use("/user",
-    (req,res,next) =>{
-    //Route handler
-    console.log("handling route user");
-    res.send("Response1");
-    next();
-},
-(req,res) =>{
-  console.log("Handling 1");
-  res.send("Response2");
-}
-);
+app.get("/user",userAuth, (req,res) =>{
+    res.send("data i sent");
+})
+
+app.get("/admin/getalldata",(req,res) =>{
+    res.send("user data sent");
+});
 
 
 app.listen(3000, () =>{
-  console.log("Server is listening on port 3000..."); 
+  console.log("Server is listening on port 3000...");
 });
