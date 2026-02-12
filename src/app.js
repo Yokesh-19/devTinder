@@ -6,15 +6,14 @@ const connectDB = require("./config/database")
 
 const User = require("./Models/user");
 
+app.use(express.json());
+
 //Api's
 
 app.post("/signup", async (req,res) =>{
-    const userobj = {
-      firstName: "Yokesh",
-      lastName: "HashedIn",
-      emailId: "yoki@gmail.com",
-      password: "yoki@123"
-    }
+    
+    
+    const userobj = req.body;
     
     //creating a new instance of the user model
     const user = new User(userobj);
