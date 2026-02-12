@@ -41,6 +41,7 @@ const userSchema = mongoose.Schema({
     },
     skills: {
         type: [String],
+        minItems:5,
     }
 },
 {

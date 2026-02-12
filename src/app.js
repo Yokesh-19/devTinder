@@ -97,18 +97,36 @@ app.delete("/delete" , async(req,res) =>{
 
 
 //Update data of the user
-app.patch("/user", async(req,res) =>{
-  const userId = req.body.userId;        //this you send in postman....so you can keep any name for it[userId]
+app.patch("/user/:userId", async(req,res) =>{
+  const userId = req.params?.userId;        //this you send in postman....so you can keep any name for it[userId]
   const data= req.body;                  //data you wish to update.
 
   try{
+      
+     //API validation
+     const ALLOWED_UPDATES = ["userID","photoUrl","skills","gender","age",];
+
+     const isUpdateAllowed = Object.keys(data).every((k) =>
+       ALLOWED_UPDATES.includes(k)
+    );
+
+    if(!isUpdateAllowed)
+    {
+      throw new Error("Update not allowed");
+    }
+
+    if(data.skills.length >10)
+    {
+       throw new Error("Skills cannot be more than 10");
+    }
+
      const user = await User.findByIdAndUpdate({_id:userId},data, {
            runValidators: true,
      });
      if(user)
      {
       res.send("User updated successfully");
-      res.send(user);
+      // res.send(user);
      }
      else{
          res.status(404).send("user not found");
