@@ -22,3 +22,8 @@ homework.md
 - Use of regex in routes /a/ , /.*fly$/
 - Reading the query params in the routes
 - Reading the dynamic routes
+
+
+
+
+- PATCH /profile/password  // forgot password API
