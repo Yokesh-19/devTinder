@@ -6,139 +6,122 @@ const connectDB = require("./config/database")
 
 const User = require("./Models/user");
 
+const cookieParser = require("cookie-parser");
+
+const jwt = require("jsonwebtoken");
+
+const {userAuth} = require("./middlewares/auth");
+
 app.use(express.json());   //middleware to parse JSON request bodies
+app.use(cookieParser()); 
+
+const {validateSignUpData} = require("./utils/validation");     //import the class
+
+const bcrypt = require("bcrypt");
+
 
 
 
 //Api's
 
+//SignUp
 app.post("/signup", async (req,res) =>{
     
+  try
+    {
+    //Validation
+    validateSignUpData(req);
     
-    const userobj = req.body;
+
+    const { firstName, lastName, emailId, password} = req.body;           //destructing the data from the request body
+
+    //Encrypt the password
+    const passwordHash = await bcrypt.hash(password,10);        //10 salt rounds
+
+
     
     //creating a new instance of the user model
-    const user = new User(userobj);
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+    });
 
-    try
-    {
+    
        await user.save();
        res.send("User added Successfully");
     }
     catch(err)
     {
-      res.status(400).send("Error was: " + err.message);
+      res.status(400).send("Error : " + err.message);
     }
     
 })
 
 
-//GET user by email
-app.get("/user", async (req,res) =>{
-   const userEmail = req.body.emailId;
-
-   try{
-    const user = await User.findOne({emailId: userEmail});
-    if(user.length ===0)
-    {
-      res.status(404).send("user not found");
-    }
-    else{
-      res.send(user);
-    }
-   }
-   catch{
-    res.status(400).send("Error was: " + err.message);
-   }
-
-});
-
-// Feed API - GET /feed - get all the users from the database
-app.get("/feed", async (req,res) =>{
-    
-    try{
-       const users = await User.find({});          //empty filter...that gets you all
-       if(users.length ===0)
-       {
-         res.status(404).send("No users found");
-       }
-       else{
-         res.send(users);
-       }
-    }
-    catch(err)
-    {
-      res.status(400).send("Error was: " + err.message);
-    }
-})
-
-
-//Delete a user by Id
-app.delete("/delete" , async(req,res) =>{
-    const userId=req.body._id;
-
-    try{
-      const user = await User.findByIdAndDelete(userId);
-      if(user)
-      {
-        res.send("user deleted successfully");
-        res.send(user);
-      }
-      else
-      {
-        res.status(404).send("user not found");
-      }
-    }
-    catch(err)
-    {
-      res.status(400).send("Error was: " + err.message);
-    }
-})
-
-
-//Update data of the user
-app.patch("/user/:userId", async(req,res) =>{
-  const userId = req.params?.userId;        //this you send in postman....so you can keep any name for it[userId]
-  const data= req.body;                  //data you wish to update.
-
+//Login API
+app.post("/login", async (req,res) =>{
   try{
-      
-     //API validation
-     const ALLOWED_UPDATES = ["userID","photoUrl","skills","gender","age",];
+    const data = req.body;
+    const {emailId, password} = req.body;
 
-     const isUpdateAllowed = Object.keys(data).every((k) =>
-       ALLOWED_UPDATES.includes(k)
-    );
+    const user = await User.findOne({emailId:emailId});
 
-    if(!isUpdateAllowed)
+    if(!user)
     {
-      throw new Error("Update not allowed");
+      throw new Error("Invalid Credentials");
     }
 
-    if(data.skills.length >10)
+    const isPasswordValid = await user.validatePassword(password);
+
+    if(isPasswordValid)
     {
-       throw new Error("Skills cannot be more than 10");
+
+      //Create a JWT Token
+      const token = await user.getJWT();     //hiding the userid inside the token
+      console.log(token);
+
+
+      //Add the token to cookiesand send the response back to user
+      res.cookie("token",token);
+      res.send("Login Successful!!");
+    }
+    else
+    {
+      throw new Error("Invalid Credentials");
     }
 
-     const user = await User.findByIdAndUpdate({_id:userId},data, {
-           runValidators: true,
-     });
-     if(user)
-     {
-      res.send("User updated successfully");
-      // res.send(user);
-     }
-     else{
-         res.status(404).send("user not found");
-     }
   }
   catch(err)
   {
-    res.status(400).send("Error was: " + err.message);
+    res.status(400).send("Error : " + err.message);
   }
-
 })
 
+
+//get profiles
+app.post("/profile", userAuth,async(req,res) =>{ //first goes to userAuth and validation happens and next call then it comes here and executes 
+   try{
+   
+   const user = req.user;
+  
+   res.send(user);
+  }
+  catch(err)
+  {
+    res.status(400).send("Error : " + err.message);
+  }
+})
+
+
+app.get("/sendconnectionrequest",userAuth, (req,res) =>{
+
+  res.send("connection request sent by: "+ req.user.firstName);
+
+  console.log("sent");
+  res.send("connection sent!!");
+})
 
 
 
