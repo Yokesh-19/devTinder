@@ -73,6 +73,53 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth, async(req,res) =>
 })
 
 
+requestRouter.post("/request/review/:status/:requestId", userAuth, async(req,res) =>{
+    try{
+       
+      const loggedInUser = req.user;
+      const {status, requestId} = req.params;
+
+      const allowedStatus = ["accepted","rejected"];
+      //Validate the status
+      if(!allowedStatus.includes(status))
+      {
+        return res.status(400).json({message:"Status not allowed!!"});
+      }
+
+      const connectionRequest = await ConnectionRequestModel.findOne({
+        _id:requestId,
+        toUserId:loggedInUser._id,
+        status:"interested",
+      })
+
+      console.log(connectionRequest);
+
+      if(!connectionRequest)
+      {
+        return res.status(400).json({message:"Connection request not found"});
+      }
+
+      connectionRequest.status = status;
+
+      const data = await connectionRequest.save();
+
+      res.json({
+        message:"Connection request " + status,data
+      })
+        //Yokesh => Elon
+        //Is Elon loggedIn = toUserId
+        // status = interested
+        //request Id should be valid
+    }
+    catch(err)
+    {
+         res.status(400).json({
+          message:"Error processing connection request",
+          error: err.message,
+         })
+    }
+} )
+
 
 
 module.exports = requestRouter;
