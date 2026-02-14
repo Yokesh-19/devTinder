@@ -49,12 +49,16 @@ const userSchema = mongoose.Schema({
     },
     gender: {
         type: String,
-        validate(value){                         //only works when the user signup
-            if(!["male","female","others"].includes(value))
-            {
-                throw new Error("Gendor data is Invalid");
-            }
+        enum:{
+            values:["male","female","others"],
+            message:`{VALUE} is not a valid gender type`
         }
+        // validate(value){                         //only works when the user signup
+        //     if(!["male","female","others"].includes(value))
+        //     {
+        //         throw new Error("Gendor data is Invalid");
+        //     }
+        // }
     },
     photoUrl: {
         type: String,
@@ -78,11 +82,14 @@ const userSchema = mongoose.Schema({
 );
 
 
+userSchema.index({firstName:1, lastName:1});  //arranges the data in ascending order,so findbyId,findOne will work faster
+
+
 
 userSchema.methods.getJWT =async function (){
     const user = this;
 
-    const token =await jwt.sign({_id:user._id},"YokeshHashedInEmployee@2026",{expiresIn:"1d"}) ;
+    const token =await jwt.sign({_id:user._id},"YokeshHashedInEmployee@2026",{expiresIn:"1d"}) ;     ////hiding the userid inside the token
 
     return token;
 
