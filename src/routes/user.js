@@ -5,7 +5,7 @@ const {userAuth} = require("../middlewares/auth");
 const ConnectionRequestModel = require("../Models/connectionRequest");
 const User = require("../Models/user");
 
-const USER_SAFE_DATA= "firstName lastName age gender";
+const USER_SAFE_DATA= "firstName lastName age gender photourl";
 
 
 userRouter.get("/user/requests/received", userAuth, async(req,res) =>{
@@ -83,7 +83,7 @@ userRouter.get("/user/feed", userAuth, async(req,res) =>{
             $and: [{_id: {$nin:Array.from(hideUsersFromFeed)}},          //$nin - not In 
             {_id:{$ne:loggedInUser._id}},                                //$ne -not equal to
         ],
-        }).select("firstName fromUserId lastName emailId").skip(skip).limit(limit);
+        }).select("firstName fromUserId lastName emailId photourl").skip(skip).limit(limit);
 
         res.send(users)
 

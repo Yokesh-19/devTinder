@@ -21,7 +21,7 @@ authRouter.post("/signup", async (req,res) =>{
     validateSignUpData(req);
     
 
-    const { firstName, lastName, emailId, password} = req.body;           //destructing the data from the request body
+    const { firstName, lastName, emailId, password, photourl} = req.body;           //destructing the data from the request body
 
     //Encrypt the password
     const passwordHash = await bcrypt.hash(password,10);        //10 salt rounds
@@ -34,11 +34,24 @@ authRouter.post("/signup", async (req,res) =>{
       lastName,
       emailId,
       password: passwordHash,
+      photourl,
     });
 
+
+
+    const savedUser = await user.save();
+
+      //Create a JWT Token
+      const token = await savedUser.getJWT();
+      
+
+      //Add the token to cookiesand send the response back to user
+      res.cookie("token",token, {
+        expires: new Date(Date.now() + 8 * 3600000)
+      });
+
     
-       await user.save();
-       res.send("User added Successfully");
+       res.json({ message: "User added Successfully", data: savedUser });
     }
     catch(err)
     {
@@ -68,6 +81,7 @@ authRouter.post("/login", async (req,res) =>{
 
       //Create a JWT Token
       const token = await user.getJWT();
+      
 
       //Add the token to cookiesand send the response back to user
       res.cookie("token",token); 

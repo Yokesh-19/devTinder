@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 app.use(cors({
-  origin: "http://localhost:5173",       //Whitelisting the Domain name- backend should know where the request is comming from
+  origin: "http://localhost:5173",
   credentials: true,
 }));
 

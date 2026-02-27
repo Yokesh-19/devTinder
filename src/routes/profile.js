@@ -11,7 +11,7 @@ const { validateEditProfileData } = require("../utils/validation");
 
 
 //get profiles
-profileRouter.post("/profile/view", userAuth,async(req,res) =>{ //first goes to userAuth and validation happens and next call then it comes here and executes 
+profileRouter.get("/profile/view", userAuth,async(req,res) =>{ //first goes to userAuth and validation happens and next call then it comes here and executes 
    try{
    
    const user = req.user;

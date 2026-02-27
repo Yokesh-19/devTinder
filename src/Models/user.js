@@ -60,7 +60,7 @@ const userSchema = mongoose.Schema({
         //     }
         // }
     },
-    photoUrl: {
+    photourl: {
         type: String,
          validate(value)
         {

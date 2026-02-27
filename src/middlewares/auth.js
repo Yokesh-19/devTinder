@@ -15,7 +15,7 @@ const userAuth = async(req,res,next) =>{
 
        if(!token)
        {
-        throw new Error("invalid Token");
+        return res.status(401).send("Please Login!");
        }
     
        const decodedMessage = jwt.verify(token,"YokeshHashedInEmployee@2026");
